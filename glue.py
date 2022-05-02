@@ -6,6 +6,7 @@ import pandas as pd
 import torch
 import wget
 import time
+import json
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data import TensorDataset, random_split
 from transformers import (BertModel,
@@ -18,7 +19,7 @@ from transformers import (BertModel,
                           )
 from transformers import get_linear_schedule_with_warmup
 from sklearn.metrics import matthews_corrcoef
-
+from torch import optim
 from zipfile import ZipFile
 
 
@@ -122,6 +123,7 @@ class Glue:
         epoch_training_time, epoch_val_time = [], []
         epoch_train_accuracy, epoch_val_accuracy = [], []
         epoch_train_loss, epoch_val_loss = [], []
+        batch_loss = []
         epoch_data = {
             'train_loss': epoch_train_loss,
             'training_time': epoch_training_time,
@@ -158,6 +160,7 @@ class Glue:
                 loss = output.loss
                 logits = output.logits
                 total_train_loss += loss.item()
+                batch_loss.append(loss.item().numpy())
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
 
@@ -186,7 +189,7 @@ class Glue:
         print("Training complete!")
         total_training_time = time.time() - start_time
 
-        return epoch_data, total_training_time
+        return epoch_data, total_training_time, batch_loss
 
     def val_test(self, val_dataloader):
 
@@ -281,12 +284,15 @@ class Glue:
             if type(data) == dict:
                 df = pd.DataFrame(data)
                 df.to_csv(self.model_name + '_' + self.task_name + '_train')
+            elif type(data) == list:
+                with open(self.model_name + '_batch_loss', 'w') as f:
+                    json.dump(data, f)
             else:
-                with open(self.model_name + '_train_time', 'a') as f:
-                    f.write([self.task_name, data])
+                with open(self.model_name + '_train_time', 'a+') as f:
+                    f.write('{} {}\n'.format(self.task_name, str(data)))
         else:
-            with open(self.model_name + '_test_acc', 'a') as f:
-                f.write([self.task_name, data])
+            with open(self.model_name + '_test_acc', 'a+') as f:
+                f.write('{} {}\n'.format(self.task_name, str(data)))
 
     def run(self):
 
@@ -312,17 +318,18 @@ class Glue:
             batch_size=self.batch_size  # Evaluate with this batch size.
         )
 
-        self.optimizer = AdamW(self.model.parameters(),
-                               lr=2e-5,
-                               eps=1e-8
-                               )
+        self.optimizer = optim.AdamW(self.model.parameters(),
+                                     lr=2e-5,
+                                     eps=1e-8
+                                     )
         total_steps = len(train_dataloader) * self.epochs
         self.scheduler = get_linear_schedule_with_warmup(self.optimizer,
                                                          num_warmup_steps=0,  # Default value in run_glue.py
                                                          num_training_steps=total_steps)
-        train_data, train_time = self.train(train_dataloader, validation_dataloader)
+        train_data, train_time, batch_loss = self.train(train_dataloader, validation_dataloader)
         self.save_data(train_data, True)
         self.save_data(train_time, True)
+        self.save_data(batch_loss, True)
 
         # Testing Data
         sentences, labels = test_data
