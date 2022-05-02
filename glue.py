@@ -160,7 +160,7 @@ class Glue:
                 loss = output.loss
                 logits = output.logits
                 total_train_loss += loss.item()
-                batch_loss.append(loss.item().numpy())
+                batch_loss.append(loss.item())
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
 
@@ -346,5 +346,5 @@ class Glue:
 
 
 if __name__ == '__main__':
-    obj = Glue('roberta', 'cola', 2)
+    obj = Glue('bert', 'cola', 2)
     obj.run()
