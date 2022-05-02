@@ -140,6 +140,11 @@ class Glue:
             total_train_loss = 0
             self.model.train()
             for step, batch in enumerate(train_dataloader):
+
+                if step % 40 == 0 and not step == 0:
+                    elapsed = time.time() - t0
+                    print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(step, len(train_dataloader), elapsed))
+
                 b_input_ids = batch[0].to(self.device)
                 b_input_mask = batch[1].to(self.device)
                 b_labels = batch[2].to(self.device)
