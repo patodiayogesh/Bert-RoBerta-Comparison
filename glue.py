@@ -14,6 +14,7 @@ from transformers import (BertModel,
                           RobertaTokenizer,
                           AdamW,
                           BertForSequenceClassification,
+                          RobertaForSequenceClassification,
                           )
 from transformers import get_linear_schedule_with_warmup
 from sklearn.metrics import matthews_corrcoef
@@ -47,7 +48,7 @@ class Glue:
                                                                   )
         elif model_name == 'roberta':
             tokenizer = RobertaTokenizer.from_pretrained('roberta-base', do_lower_case=True)
-            model = RobertaModel.from_pretrained('roberta-base')
+            model = RobertaForSequenceClassification.from_pretrained('roberta-base')
 
         return model, tokenizer
 
@@ -339,5 +340,5 @@ class Glue:
 
 
 if __name__ == '__main__':
-    obj = Glue('bert', 'cola', 2)
+    obj = Glue('roberta', 'cola', 2)
     obj.run()
