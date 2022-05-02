@@ -141,7 +141,6 @@ class Glue:
             total_train_loss = 0
             self.model.train()
             for step, batch in enumerate(train_dataloader):
-                print('step number ', step)
                 if step % 40 == 0 and not step == 0:
                     elapsed = time.time() - t0
                     print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(step, len(train_dataloader), elapsed))
