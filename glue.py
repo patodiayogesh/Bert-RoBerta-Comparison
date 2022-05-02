@@ -18,9 +18,12 @@ from transformers import (BertModel,
                           RobertaForSequenceClassification,
                           )
 from transformers import get_linear_schedule_with_warmup
+from datasets import load_dataset
 from sklearn.metrics import matthews_corrcoef
 from torch import optim
 from zipfile import ZipFile
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class Glue:
@@ -74,6 +77,11 @@ class Glue:
             print('Number of test sentences: {:,}\n'.format(df.shape[0]))
             test_sentences = df.sentence.values
             test_labels = df.label.values
+
+        elif self.task_name == 'sst-2':
+
+            train_dataset = load_dataset('glue', 'sst2')
+
 
         return (train_sentences, train_labels), (test_sentences, test_labels)
 
@@ -265,18 +273,26 @@ class Glue:
                 matthews = matthews_corrcoef(true_labels[i], pred_labels_i)
                 matthews_set.append(matthews)
 
-                # Combine the results across all batches.
-                flat_predictions = np.concatenate(predictions, axis=0)
-                # For each sample, pick the label (0 or 1) with the higher score.
-                flat_predictions = np.argmax(flat_predictions, axis=1).flatten()
-                # Combine the correct labels for each batch into a single list.
-                flat_true_labels = np.concatenate(true_labels, axis=0)
-                # Calculate the MCC
-                mcc = matthews_corrcoef(flat_true_labels, flat_predictions)
+            # Plot batch data
+            ax = sns.barplot(x=list(range(len(matthews_set))), y=matthews_set, ci=None)
+            plt.title('MCC Score per Batch for ' + self.model_name)
+            plt.ylabel('MCC Score (-1 to +1)')
+            plt.xlabel('Batch #')
+            plt.savefig(self.model_name + ' MCC batch scores')
+            plt.clf()
 
-                print('Total MCC: %.3f' % mcc)
+            # Combine the results across all batches.
+            flat_predictions = np.concatenate(predictions, axis=0)
+            # For each sample, pick the label (0 or 1) with the higher score.
+            flat_predictions = np.argmax(flat_predictions, axis=1).flatten()
+            # Combine the correct labels for each batch into a single list.
+            flat_true_labels = np.concatenate(true_labels, axis=0)
+            # Calculate the MCC
+            mcc = matthews_corrcoef(flat_true_labels, flat_predictions)
 
-                return mcc * 100
+            print('Total MCC: %.3f' % mcc)
+
+            return mcc * 100
 
     def save_data(self, data, train=True):
 
@@ -331,6 +347,9 @@ class Glue:
         self.save_data(train_time, True)
         self.save_data(batch_loss, True)
 
+        # save model
+        torch.save(self.model)
+
         # Testing Data
         sentences, labels = test_data
         input_ids, attention_masks, labels = self.tokenize_data(sentences, labels)
@@ -347,4 +366,6 @@ class Glue:
 
 if __name__ == '__main__':
     obj = Glue('bert', 'cola', 2)
+    obj.run()
+    obj = Glue('roberta', 'cola', 2)
     obj.run()
