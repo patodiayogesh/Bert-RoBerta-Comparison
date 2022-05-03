@@ -29,7 +29,7 @@ import seaborn as sns
 class Glue:
 
     def __init__(self, model_name, task_name, n_labels):
-        self.epochs = 3
+        self.epochs = 1
         self.batch_size = 32
         self.task_name = task_name
         self.model_name = model_name
@@ -59,9 +59,9 @@ class Glue:
     def formulate_data(self, dataset):
         sentences, labels = [], []
         for x in dataset.data[0]:
-            sentences.append(x)
-        for x in dataset.data[1]:
-            labels.append(x)
+            sentences.append(x.as_py())
+        labels = dataset.data[1].to_pylist()
+
         return sentences, labels
 
 
@@ -407,7 +407,7 @@ class Glue:
 
 
 if __name__ == '__main__':
-    obj = Glue('bert', 'cola', 2)
+    obj = Glue('bert', 'sst-2', 2)
     obj.run()
-    obj = Glue('roberta', 'cola', 2)
+    obj = Glue('roberta', 'sst-2', 2)
     obj.run()
