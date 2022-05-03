@@ -18,7 +18,7 @@ from transformers import (BertModel,
                           RobertaForSequenceClassification,
                           )
 from transformers import get_linear_schedule_with_warmup
-from datasets import load_dataset
+from datasets import load_dataset, load_metric
 from sklearn.metrics import matthews_corrcoef
 from torch import optim
 from zipfile import ZipFile
@@ -56,6 +56,15 @@ class Glue:
 
         return model, tokenizer
 
+    def formulate_data(self, dataset):
+        sentences, labels = [], []
+        for x in dataset.data[0]:
+            sentences.append(x)
+        for x in dataset.data[1]:
+            labels.append(x)
+        return sentences, labels
+
+
     def get_glue_tasks(self):
 
         if self.task_name == 'cola':
@@ -71,6 +80,8 @@ class Glue:
             train_sentences = df.sentence.values
             train_labels = df.label.values
 
+            val_sentences, val_labels = None, None
+
             # Test data
             df = pd.read_csv("cola_public/raw/out_of_domain_dev.tsv", delimiter='\t', header=None,
                              names=['sentence_source', 'label', 'label_notes', 'sentence'])
@@ -80,10 +91,17 @@ class Glue:
 
         elif self.task_name == 'sst-2':
 
-            train_dataset = load_dataset('glue', 'sst2')
+            train_sentences, train_labels = self.formulate_data(
+                load_dataset('glue', 'sst2', split='train'))
+            val_sentences, val_labels = self.formulate_data(
+                load_dataset('glue', 'sst2', split='validation'))
+            test_sentences, test_labels = self.formulate_data(
+                load_dataset('glue', 'sst2', split='test'))
 
 
-        return (train_sentences, train_labels), (test_sentences, test_labels)
+        return (train_sentences, train_labels), \
+               (val_sentences, val_labels), \
+               (test_sentences, test_labels)
 
     def tokenize_data(self, sentences, labels):
 
@@ -294,6 +312,17 @@ class Glue:
 
             return mcc * 100
 
+        elif self.task_name == 'sst-2':
+            metric = load_metric('glue', 'sst2')
+            flat_predictions = np.concatenate(predictions, axis=0)
+            flat_predictions = np.argmax(flat_predictions, axis=1).flatten()
+            flat_true_labels = np.concatenate(true_labels, axis=0)
+
+            results = metric.compute(predictions=flat_predictions, references=flat_true_labels)
+            print(results)
+            return str(results)
+
+
     def save_data(self, data, train=True):
 
         if train:
@@ -312,17 +341,29 @@ class Glue:
 
     def run(self):
 
-        train_data, test_data = self.get_glue_tasks()
+        train_data, val_data, test_data = self.get_glue_tasks()
 
-        sentences, labels = train_data
-        input_ids, attention_masks, labels = self.tokenize_data(sentences, labels)
-        dataset = TensorDataset(input_ids, attention_masks, labels)
-        train_size = int(0.9 * len(dataset))
-        val_size = len(dataset) - train_size
-        print('{:>5,} training samples'.format(train_size))
-        print('{:>5,} validation samples'.format(val_size))
+        if None in val_data:
+            sentences, labels = train_data
+            input_ids, attention_masks, labels = self.tokenize_data(sentences, labels)
+            dataset = TensorDataset(input_ids, attention_masks, labels)
+            train_size = int(0.9 * len(dataset))
+            val_size = len(dataset) - train_size
+            print('{:>5,} training samples'.format(train_size))
+            print('{:>5,} validation samples'.format(val_size))
 
-        train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+            train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+        else:
+            # Train dataset
+            sentences, labels = train_data
+            input_ids, attention_masks, labels = self.tokenize_data(sentences, labels)
+            train_dataset = TensorDataset(input_ids, attention_masks, labels)
+
+            # Val dataset
+            sentences, labels = val_data
+            input_ids, attention_masks, labels = self.tokenize_data(sentences, labels)
+            val_dataset = TensorDataset(input_ids, attention_masks, labels)
+
         train_dataloader = DataLoader(
             train_dataset,  # The training samples.
             sampler=RandomSampler(train_dataset),  # Select batches randomly
@@ -348,7 +389,8 @@ class Glue:
         self.save_data(batch_loss, True)
 
         # save model
-        torch.save(self.model)
+        filepath = self.model_name+'_model'
+        torch.save(self.model, filepath)
 
         # Testing Data
         sentences, labels = test_data
