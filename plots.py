@@ -12,8 +12,8 @@ def batch_loss_plot(filename, model, n_epochs, batch_size, task, gpu):
 
     n_batches= int(len(batch_loss)/n_epochs)
     plt.plot(range(1,n_batches+1), batch_loss[:n_batches],'r', label='Epoch 1')
-    plt.plot(range(1, n_batches + 1), batch_loss[n_batches:2*n_batches], 'b', label='Epoch 1')
-    plt.plot(range(1, n_batches + 1), batch_loss[2*n_batches:], 'g', label='Epoch 1')
+    plt.plot(range(1, n_batches + 1), batch_loss[n_batches:2*n_batches], 'b', label='Epoch 2')
+    plt.plot(range(1, n_batches + 1), batch_loss[2*n_batches:], 'g', label='Epoch 3')
     plt.title('Batch Loss (Model:{}, Task:{}, Batch Size:{} GPU:{})'.format(model,task,batch_size,gpu))
     plt.xlabel('Batch Number')
     plt.ylabel('Loss')
@@ -47,8 +47,8 @@ def loss_plots(n_epochs, gpu):
     plt.xlabel('Epoch #')
     plt.ylabel('Loss')
     plt.title('Bert-Roberta Loss Comparison')
-    plt.savefig('bert_roberta_loss_a100')
     plt.legend()
+    plt.savefig('bert_roberta_loss_a100')
     plt.show()
     return
 
@@ -71,8 +71,8 @@ def val_acc_plots(n_epochs, gpu):
     plt.xlabel('Epoch #')
     plt.ylabel('Accuracy')
     plt.title('Bert-Roberta Validation Accuracy')
-    plt.savefig('bert_roberta_val_acc_a100')
     plt.legend()
+    plt.savefig('bert_roberta_val_acc_a100')
     plt.show()
     return
 
@@ -101,24 +101,33 @@ def time_plots(n_epochs, gpu):
 
     plt.xlabel('Epoch #')
     plt.ylabel('Time')
+    plt.legend()
     plt.title('Bert-Roberta Time Comparison')
     plt.savefig('bert_roberta_time_a100')
-    plt.legend()
     plt.show()
     return
 
 def total_train_time_plot():
 
-    with open('a100_cola/bert_train_time', 'r') as f:
+    with open('v100_cola/bert_train_time', 'r') as f:
         bert_time = f.read()
     bert_time = float(bert_time.split(' ')[1][:-1])
 
-    with open('a100_cola/roberta_train_time', 'r') as f:
+    with open('v100_cola/roberta_train_time', 'r') as f:
         roberta_time = f.read()
     roberta_time = float(roberta_time.split(' ')[1][:-1])
 
-    plt.bar(['bert (A100)', 'roberta (A100)'], [bert_time, roberta_time])
-    plt.ylim(2100, None)
+    with open('a100_cola/bert_train_time', 'r') as f:
+        bert_time_2 = f.read()
+    bert_time_2 = float(bert_time_2.split(' ')[1][:-1])
+
+    with open('a100_cola/roberta_train_time', 'r') as f:
+        roberta_time_2 = f.read()
+    roberta_time_2 = float(roberta_time_2.split(' ')[1][:-1])
+
+    plt.bar(['bert (V100)', 'roberta (V100)', 'bert (A100)', 'roberta (A100)'],
+            [bert_time, roberta_time, bert_time_2, roberta_time_2])
+    plt.ylim(40, None)
     plt.xlabel('Model and GPU')
     plt.ylabel('Training Time')
     plt.title('Bert-Roberta Traing Time Comparison')
@@ -126,10 +135,10 @@ def total_train_time_plot():
     plt.show()
     return
 
-# batch_loss_plot('a100_cola/bert_batch_loss', 'bert', 3, 32, 'cola', 'A100')
-# batch_loss_plot('a100_cola/roberta_batch_loss', 'roberta', 3, 32, 'cola', 'A100')
-# loss_plots(3, 'A100')
-# val_acc_plots(3, 'A100')
-# time_plots(3, 'A100')
-total_train_time_plot()
+batch_loss_plot('a100_cola/bert_batch_loss', 'bert', 3, 32, 'cola', 'A100')
+batch_loss_plot('a100_cola/roberta_batch_loss', 'roberta', 3, 32, 'cola', 'A100')
+loss_plots(3, 'A100')
+val_acc_plots(3, 'A100')
+time_plots(3, 'A100')
+# total_train_time_plot()
 
