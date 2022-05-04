@@ -29,7 +29,7 @@ import seaborn as sns
 class Glue:
 
     def __init__(self, model_name, task_name, n_labels):
-        self.epochs = 1
+        self.epochs = 3
         self.batch_size = 32
         self.task_name = task_name
         self.model_name = model_name
@@ -407,7 +407,7 @@ class Glue:
 
 
 if __name__ == '__main__':
-    obj = Glue('bert', 'sst-2', 2)
+    obj = Glue('bert', 'cola', 2)
     obj.run()
-    obj = Glue('roberta', 'sst-2', 2)
+    obj = Glue('roberta', 'cola', 2)
     obj.run()
