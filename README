@@ -11,6 +11,9 @@ SQuAD Plots/ has all SQuAD related plots
 
 Commands to run:
 For COLA Dataset:
+mkdir GLUE
+python glue.py
+(NOTE: The code automatically downloads and unzips the dataset. The code is running bert and roberta.)
 
 
 For SQuAD Dataset:
