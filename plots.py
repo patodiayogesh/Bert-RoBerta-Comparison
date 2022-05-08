@@ -8,6 +8,8 @@ def batch_loss_plot(filename, model, n_epochs, batch_size, task, gpu):
     with open(filename, 'r') as f:
         batch_loss = json.load(f)
 
+    colors = ['r', 'b', 'g', 'o']
+
     n_batches= int(len(batch_loss)/n_epochs)
     plt.plot(range(1,n_batches+1), batch_loss[:n_batches],'r', label='Epoch 1')
     plt.plot(range(1, n_batches + 1), batch_loss[n_batches:2*n_batches], 'b', label='Epoch 2')
@@ -21,8 +23,8 @@ def batch_loss_plot(filename, model, n_epochs, batch_size, task, gpu):
 
 def loss_plots(n_epochs, gpu):
 
-    bert_a100 = pd.read_csv('a100_cola/bert_cola_train')
-    roberta_a100 = pd.read_csv('a100_cola/roberta_cola_train')
+    bert_a100 = pd.read_csv('v100_cola/bert_cola_train')
+    roberta_a100 = pd.read_csv('v100_cola/roberta_cola_train')
     bert_train_loss_a100 = list(bert_a100.train_loss)
     bert_val_loss_a100 = list(bert_a100.val_loss)
     robert_train_loss_a100 = list(roberta_a100.train_loss)
@@ -31,22 +33,22 @@ def loss_plots(n_epochs, gpu):
 
     plt.plot( range(1,n_epochs+1), bert_train_loss_a100,
               marker='o', linestyle='dashed',
-              label='Bert train ('+gpu+')')
+              label='Bert train (V100)')
     plt.plot(range(1, n_epochs + 1), bert_val_loss_a100,
              marker='o', linestyle='dashed',
-             label='Bert val ('+gpu+')')
+             label='Bert val (V100)')
     plt.plot(range(1, n_epochs + 1), robert_train_loss_a100,
              marker='o', linestyle='dashed',
-             label='Roberta train ('+gpu+')')
+             label='Roberta train (V100)')
     plt.plot(range(1, n_epochs + 1), roberta_val_loss_a100,
              marker='o', linestyle='dashed',
-             label='Roerta val ('+gpu+')')
+             label='Roberta val (V100)')
 
     plt.xlabel('Epoch #')
     plt.ylabel('Loss')
     plt.title('Bert-Roberta Loss Comparison')
     plt.legend()
-    plt.savefig('bert_roberta_loss_'+gpu)
+    plt.savefig('bert_roberta_loss_v100')
     plt.show()
     return
 
@@ -61,16 +63,16 @@ def val_acc_plots(n_epochs, gpu):
 
     plt.plot( range(1,n_epochs+1), bert_val_acc_a100,
               marker='o', linestyle='dashed',
-              label='Bert ('+gpu+')')
+              label='Bert (A100)')
     plt.plot(range(1, n_epochs + 1), roberta_val_acc_a100,
              marker='o', linestyle='dashed',
-             label='Roberta ('+gpu+')')
+             label='Roberta (A100)')
 
     plt.xlabel('Epoch #')
     plt.ylabel('Accuracy')
     plt.title('Bert-Roberta Validation Accuracy')
     plt.legend()
-    plt.savefig('bert_roberta_val_acc_'+gpu)
+    plt.savefig('bert_roberta_val_acc_a100')
     plt.show()
     return
 
@@ -86,22 +88,22 @@ def time_plots(n_epochs, gpu):
 
     plt.plot( range(1,n_epochs+1), bert_train_a100,
               marker='o', linestyle='dashed',
-              label='Bert train ('+gpu+')')
+              label='Bert train (A100)')
     plt.plot(range(1, n_epochs + 1), bert_val_a100,
              marker='o', linestyle='dashed',
-             label='Bert val ('+gpu+')')
+             label='Bert val (A100)')
     plt.plot(range(1, n_epochs + 1), robert_train_a100,
              marker='o', linestyle='dashed',
-             label='Roberta train ('+gpu+')')
+             label='Roberta train (A100)')
     plt.plot(range(1, n_epochs + 1), roberta_val_a100,
              marker='o', linestyle='dashed',
-             label='Roberta val ('+gpu+')')
+             label='Roberta val (A100)')
 
     plt.xlabel('Epoch #')
     plt.ylabel('Time')
     plt.legend()
     plt.title('Bert-Roberta Time Comparison')
-    plt.savefig('bert_roberta_time_'+gpu)
+    plt.savefig('bert_roberta_time_a100')
     plt.show()
     return
 
@@ -133,10 +135,10 @@ def total_train_time_plot():
     plt.show()
     return
 
-batch_loss_plot('a100_cola/bert_batch_loss', 'bert', 3, 32, 'cola', 'A100')
-batch_loss_plot('a100_cola/roberta_batch_loss', 'roberta', 3, 32, 'cola', 'A100')
-loss_plots(3, 'A100')
-val_acc_plots(3, 'A100')
-time_plots(3, 'A100')
+# batch_loss_plot('a100_cola/bert_batch_loss', 'bert', 3, 32, 'cola', 'A100')
+# batch_loss_plot('a100_cola/roberta_batch_loss', 'roberta', 3, 32, 'cola', 'A100')
+loss_plots(3, 'V100')
+# val_acc_plots(3, 'A100')
+# time_plots(3, 'A100')
 # total_train_time_plot()
 
