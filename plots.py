@@ -8,8 +8,6 @@ def batch_loss_plot(filename, model, n_epochs, batch_size, task, gpu):
     with open(filename, 'r') as f:
         batch_loss = json.load(f)
 
-    colors = ['r', 'b', 'g', 'o']
-
     n_batches= int(len(batch_loss)/n_epochs)
     plt.plot(range(1,n_batches+1), batch_loss[:n_batches],'r', label='Epoch 1')
     plt.plot(range(1, n_batches + 1), batch_loss[n_batches:2*n_batches], 'b', label='Epoch 2')
@@ -33,22 +31,22 @@ def loss_plots(n_epochs, gpu):
 
     plt.plot( range(1,n_epochs+1), bert_train_loss_a100,
               marker='o', linestyle='dashed',
-              label='Bert train (A100)')
+              label='Bert train ('+gpu+')')
     plt.plot(range(1, n_epochs + 1), bert_val_loss_a100,
              marker='o', linestyle='dashed',
-             label='Bert val (A100)')
+             label='Bert val ('+gpu+')')
     plt.plot(range(1, n_epochs + 1), robert_train_loss_a100,
              marker='o', linestyle='dashed',
-             label='Roberta val (A100)')
+             label='Roberta train ('+gpu+')')
     plt.plot(range(1, n_epochs + 1), roberta_val_loss_a100,
              marker='o', linestyle='dashed',
-             label='Roerta val (A100)')
+             label='Roerta val ('+gpu+')')
 
     plt.xlabel('Epoch #')
     plt.ylabel('Loss')
     plt.title('Bert-Roberta Loss Comparison')
     plt.legend()
-    plt.savefig('bert_roberta_loss_a100')
+    plt.savefig('bert_roberta_loss_'+gpu)
     plt.show()
     return
 
@@ -63,16 +61,16 @@ def val_acc_plots(n_epochs, gpu):
 
     plt.plot( range(1,n_epochs+1), bert_val_acc_a100,
               marker='o', linestyle='dashed',
-              label='Bert (A100)')
+              label='Bert ('+gpu+')')
     plt.plot(range(1, n_epochs + 1), roberta_val_acc_a100,
              marker='o', linestyle='dashed',
-             label='Roberta (A100)')
+             label='Roberta ('+gpu+')')
 
     plt.xlabel('Epoch #')
     plt.ylabel('Accuracy')
     plt.title('Bert-Roberta Validation Accuracy')
     plt.legend()
-    plt.savefig('bert_roberta_val_acc_a100')
+    plt.savefig('bert_roberta_val_acc_'+gpu)
     plt.show()
     return
 
@@ -88,22 +86,22 @@ def time_plots(n_epochs, gpu):
 
     plt.plot( range(1,n_epochs+1), bert_train_a100,
               marker='o', linestyle='dashed',
-              label='Bert train (A100)')
+              label='Bert train ('+gpu+')')
     plt.plot(range(1, n_epochs + 1), bert_val_a100,
              marker='o', linestyle='dashed',
-             label='Bert val (A100)')
+             label='Bert val ('+gpu+')')
     plt.plot(range(1, n_epochs + 1), robert_train_a100,
              marker='o', linestyle='dashed',
-             label='Roberta train (A100)')
+             label='Roberta train ('+gpu+')')
     plt.plot(range(1, n_epochs + 1), roberta_val_a100,
              marker='o', linestyle='dashed',
-             label='Roberta val (A100)')
+             label='Roberta val ('+gpu+')')
 
     plt.xlabel('Epoch #')
     plt.ylabel('Time')
     plt.legend()
     plt.title('Bert-Roberta Time Comparison')
-    plt.savefig('bert_roberta_time_a100')
+    plt.savefig('bert_roberta_time_'+gpu)
     plt.show()
     return
 
