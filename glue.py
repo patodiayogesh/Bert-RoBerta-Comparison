@@ -29,6 +29,8 @@ import seaborn as sns
 class Glue:
 
     def __init__(self, model_name, task_name, n_labels):
+
+        # Initialize and load models
         self.epochs = 3
         self.batch_size = 32
         self.task_name = task_name
@@ -42,7 +44,7 @@ class Glue:
 
     def _get_model_and_tokenizer(self, model_name, n_labels=2,
                                  output_attentions=False, output_hidden_states=False):
-
+        # Load pretrained bert or roberta
         if model_name == 'bert':
             tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
             model = BertForSequenceClassification.from_pretrained('bert-base-uncased',
@@ -66,7 +68,7 @@ class Glue:
 
 
     def get_glue_tasks(self):
-
+        # Download GLUE tasks
         if self.task_name == 'cola':
             url = 'https://nyu-mll.github.io/CoLA/cola_public_1.1.zip'
             if not os.path.exists('GLUE/cola_public_1.1.zip'):
