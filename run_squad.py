@@ -258,12 +258,12 @@ def train(args, train_dataset, model, tokenizer):
                 if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
                     # Only evaluate when single GPU otherwise metrics may not average well
                     train_end_time=time.time()
-                    tb_writer.add_scalar('time_training', train_end_time-t0)
+                    tb_writer.add_scalar('time_training', train_end_time-t0, global_step)
                     if args.local_rank == -1 and args.evaluate_during_training:
                         te0=time.time()
                         results = evaluate(args, model, tokenizer)
                         te1=time.time()
-                        tb_writer.add_scalar("time_eval", te1-te0)
+                        tb_writer.add_scalar("time_eval", te1-te0, global_step)
                         for key, value in results.items():
                             tb_writer.add_scalar("eval_{}".format(key), value, global_step)
                     tb_writer.add_scalar("lr", scheduler.get_lr()[0], global_step)
@@ -354,7 +354,7 @@ def evaluate(args, model, tokenizer, prefix=""):
 
             outputs = model(**inputs)
 
-        start_logits, end_logits = outputs.start_logits.detach().cpu().tolist(),  outputs.end_logits.detach().cpu().tolist()
+        start_logits, end_logits = to_list(outputs.start_logits),  to_list(outputs.end_logits)
         for i, example_index in enumerate(example_indices):
             eval_feature = features[example_index.item()]
             unique_id = int(eval_feature.unique_id)
