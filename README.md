@@ -1,22 +1,23 @@
-Project Description: 
+# BERT-RoBERTa Training Time, Score and Cost Comparison
+
+## Project Description: 
 This project compares the performance of transformer models, namely BERT and RoBERTa on GLUE (COLA) and SQuAD dataset and to compare cost on different GPUs.
 This is done by running the code on different GPUs namely A100 and V100.
 
-Repo Description:
+## Repo Description:
 glue.py has the code to finetune BERT and RoBERTa on GLUE task (COLA)
 squad.py has the code to finetune BERT and RoBERTa on SQuAD
 plots.py has the code to plot graphs using the data brought by glue and squad
 COLA Plots/ has all COLA related plots
 SQuAD Plots/ has all SQuAD related plots
 
-Commands to run:
-For COLA Dataset:
+## Usage:
+### For COLA Dataset:
 mkdir GLUE
 python glue.py
 (NOTE: The code automatically downloads and unzips the dataset. The code is running bert and roberta.)
 
-
-For SQuAD Dataset:
+### For SQuAD Dataset:
 To download dataset 
 curl "https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json" >> train-v1.1.json
 curl "https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v1.1.json" >> dev-v1.1.json
@@ -32,7 +33,8 @@ from tensorflow.python.summary.summary_iterator import summary_iterator
 
 to get the info and process it using plots.py
 
-Results: The plots are in COLA Plots/ and SquAD Plots/
+## Results:
+The plots are in COLA Plots/ and SquAD Plots/
 We observe that it is more economical to fine-tune on A100 GPU as compared to V100 GPU.
 - COLA Train-time Comparison
 ![](https://github.com/patodiayogesh/Bert-RoBerta-Comparison/blob/main/COLA%20Plots/v100_plots/bert_roberta_train_time.png)
