@@ -1,5 +1,5 @@
 Project Description: 
-This project compares the performance of transformer models, namely BERT and RoBERTa on GLUE (COLA) and SQuAD dataset.
+This project compares the performance of transformer models, namely BERT and RoBERTa on GLUE (COLA) and SQuAD dataset and to compare cost on different GPUs.
 This is done by running the code on different GPUs namely A100 and V100.
 
 Repo Description:
@@ -34,3 +34,9 @@ to get the info and process it using plots.py
 
 Results: The plots are in COLA Plots/ and SquAD Plots/
 We observe that it is more economical to fine-tune on A100 GPU as compared to V100 GPU.
+- COLA Train-time Comparison
+![](https://github.com/patodiayogesh/Bert-RoBerta-Comparison/blob/main/COLA%20Plots/v100_plots/bert_roberta_train_time.png)
+
+- SQUAD Train-time Comparison
+![](https://github.com/patodiayogesh/Bert-RoBerta-Comparison/blob/main/SquAD%20Plots/bert_roberta_train_time.png)
+
