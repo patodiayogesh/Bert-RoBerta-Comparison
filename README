@@ -33,3 +33,4 @@ from tensorflow.python.summary.summary_iterator import summary_iterator
 to get the info and process it using plots.py
 
 Results: The plots are in COLA Plots/ and SquAD Plots/
+We observe that it is more economical to fine-tune on A100 GPU as compared to V100 GPU.
